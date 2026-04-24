@@ -1,0 +1,12 @@
+[package]
+name = "zellij-nolock"
+version = "0.1.0"
+edition = "2021"
+description = "Zellij plugin to prevent macOS display sleep using caffeinate"
+
+[dependencies]
+zellij-tile = "0.44.1"
+
+[profile.release]
+opt-level = "s"
+lto = true
