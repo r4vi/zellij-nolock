@@ -6,7 +6,7 @@ A Zellij plugin that prevents macOS screen lock while your terminal is active â€
 
 The plugin runs `caffeinate -d -t 120` via Zellij's `run_command` API. Only one process runs at a time â€” when it expires, the plugin immediately spawns the next one if still active.
 
-**Auto mode** (default): activates when it detects pane activity (`PaneUpdate` events) and deactivates after 5 minutes of inactivity.
+**Auto mode** (default): activates when it detects activity (user input via `InputReceived`, or pane changes via `PaneUpdate` events) and deactivates after 5 minutes of inactivity.
 
 **Manual mode**: stays active until you toggle it off.
 
