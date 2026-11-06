@@ -67,7 +67,9 @@ impl ZellijPlugin for State {
             Event::PermissionRequestResult(status) => {
                 if status == PermissionStatus::Granted {
                     self.permissions_granted = true;
-                    subscribe(&[EventType::PaneUpdate]);
+                    // PaneUpdate alone misses typing and output in a shell pane on zellij 0.45+,
+                    // so also treat any user input as activity.
+                    subscribe(&[EventType::PaneUpdate, EventType::InputReceived]);
                     if self.mode == Mode::Manual {
                         self.activate();
                     }
@@ -85,10 +87,7 @@ impl ZellijPlugin for State {
             Event::RunCommandResult(exit_code, _stdout, stderr, context) => {
                 self.handle_command_result(exit_code, stderr, context)
             }
-            Event::PaneUpdate(_pane_manifest) => {
-                self.handle_pane_update();
-                self.mode == Mode::Auto
-            }
+            Event::PaneUpdate(_) | Event::InputReceived => self.handle_activity(),
             _ => false,
         }
     }
@@ -222,15 +221,19 @@ impl State {
         true
     }
 
-    fn handle_pane_update(&mut self) {
+    /// Returns whether the indicator needs re-rendering. InputReceived fires on every
+    /// keystroke, so only re-render when the active state actually changes.
+    fn handle_activity(&mut self) -> bool {
         if self.mode != Mode::Auto {
-            return;
+            return false;
         }
 
         self.last_activity_generation = self.tick_generation;
 
-        if !self.active {
-            self.activate();
+        if self.active {
+            return false;
         }
+        self.activate();
+        self.active
     }
 }
