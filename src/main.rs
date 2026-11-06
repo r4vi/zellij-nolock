@@ -102,7 +102,7 @@ impl ZellijPlugin for State {
         };
 
         let text = Text::new(indicator);
-        print_text_with_coordinates(text, 0, cols.saturating_sub(2), None, None);
+        print_text_with_coordinates(text, cols.saturating_sub(2), 0, None, None);
     }
 }
 
